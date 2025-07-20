@@ -1,7 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/facebook.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:wheel_chooser/wheel_chooser.dart';
 
 void main() {
@@ -34,7 +34,28 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Page1(),
+      home: Page2(),
+    );
+  }
+}
+
+class Page2 extends StatelessWidget {
+  const Page2({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            final response = await FacebookSignIn.signInWithFacebook();
+            log(response!.user!.uid);
+            print(response.user?.email ?? "Not found");
+            print(response.user?.phoneNumber ?? "Not found");
+          },
+          child: Text("press me"),
+        ),
+      ),
     );
   }
 }
@@ -273,8 +294,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             ElevatedButton(
-              onPressed: () {
-                FacebookSignIn.signInWithFacebook();
+              onPressed: () async {
+                final response = await FacebookSignIn.signInWithFacebook();
+                print(response!.user!.uid);
               },
               child: Text("Sign in Facebook"),
             ),

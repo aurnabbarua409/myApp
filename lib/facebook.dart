@@ -5,18 +5,21 @@ class FacebookSignIn {
   /// Static method to sign in using Facebook
   static Future<UserCredential?> signInWithFacebook() async {
     try {
-      final token = "a0411264c7c68f5303f4b99c251db4bf";
       // Trigger the Facebook sign-in flow
-      final LoginResult loginResult = await FacebookAuth.instance.login();
+      final LoginResult loginResult = await FacebookAuth.instance.login(
+        permissions: ['email', 'public_profile'],
+        loginBehavior: LoginBehavior.nativeWithFallback,
+        loginTracking: LoginTracking.limited,
+      );
 
       // If the login was successful and token is available
       if (loginResult.status == LoginStatus.success &&
           loginResult.accessToken != null) {
         final accessToken = loginResult.accessToken!;
-
+        //final token = "a0411264c7c68f5303f4b99c251db4bf";
         // Create Facebook credential for Firebase
         final OAuthCredential facebookCredential =
-            FacebookAuthProvider.credential(token);
+            FacebookAuthProvider.credential(accessToken.tokenString);
 
         // Sign in to Firebase with Facebook credential
         return await FirebaseAuth.instance.signInWithCredential(
@@ -36,5 +39,17 @@ class FacebookSignIn {
   static Future<void> signOut() async {
     await FacebookAuth.instance.logOut();
     await FirebaseAuth.instance.signOut();
+  }
+
+  static Future<UserCredential> signInFacebook() async {
+    // Trigger the sign-in flow
+    final LoginResult loginResult = await FacebookAuth.instance.login();
+
+    // Create a credential from the access token
+    final OAuthCredential facebookAuthCredential =
+        FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
+
+    // Once signed in, return the UserCredential
+    return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
   }
 }
